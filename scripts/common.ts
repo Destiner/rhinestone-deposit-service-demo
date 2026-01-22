@@ -1,0 +1,210 @@
+import { type RhinestoneAccountConfig, RhinestoneSDK } from "@rhinestone/sdk";
+import { toViewOnlyAccount } from "@rhinestone/sdk/utils";
+import {
+  type Chain,
+  type Hex,
+  createPublicClient,
+  createWalletClient,
+  encodeFunctionData,
+  erc20Abi,
+  formatEther,
+  formatUnits,
+  http,
+  parseEther,
+  parseUnits,
+} from "viem";
+import { type Address, privateKeyToAccount } from "viem/accounts";
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  optimism,
+  optimismSepolia,
+  sepolia,
+} from "viem/chains";
+
+const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY as Hex;
+if (!ownerPrivateKey) {
+  throw new Error("OWNER_PRIVATE_KEY is not set");
+}
+const fundingPrivateKey = process.env.FUNDING_PRIVATE_KEY as Hex;
+if (!fundingPrivateKey) {
+  throw new Error("FUNDING_PRIVATE_KEY is not set");
+}
+const rhinestoneSignedAddress = process.env
+  .RHINESTONE_SIGNER_ADDRESS as Address;
+if (!rhinestoneSignedAddress) {
+  throw new Error("RHINESTONE_SIGNER_ADDRESS is not set");
+}
+
+const isTestnet = process.env.USE_TESTNETS === "true";
+
+// User account
+// const pk = keccak256("0xabooba");
+const signerAccount = privateKeyToAccount(ownerPrivateKey);
+
+// Rhinestone Deposit Service account
+const rhinestoneAccount = toViewOnlyAccount(rhinestoneSignedAddress);
+
+async function getAccount(config: RhinestoneAccountConfig) {
+  const rhinestone = new RhinestoneSDK();
+  const account = await rhinestone.createAccount(config);
+  return account;
+}
+
+// Funding
+function getTransport(chain: Chain) {
+  if (chain.id === sepolia.id) {
+    return http("https://ethereum-sepolia-rpc.publicnode.com");
+  }
+  return http();
+}
+
+function getUsdcAddress(chain: Chain): Address {
+  switch (chain.id) {
+    case sepolia.id:
+      return "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
+    case baseSepolia.id:
+      return "0x036cbd53842c5426634e7929541ec2318f3dcf7e";
+    case arbitrumSepolia.id:
+      return "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d";
+    case optimismSepolia.id:
+      return "0x5fd84259d66Cd46123540766Be93DFE6D43130D7";
+    case base.id:
+      return "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+    case arbitrum.id:
+      return "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
+    case optimism.id:
+      return "0x0b2c639c533813f4aa9d7837caf62653d097ff85";
+    default:
+      throw new Error("Unsupported chain");
+  }
+}
+
+function getWethAddress(chain: Chain) {
+  switch (chain.id) {
+    case sepolia.id:
+      return "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14";
+    case baseSepolia.id:
+      return "0x4200000000000000000000000000000000000006";
+    case arbitrumSepolia.id:
+      return "0x980B62Da83eFf3D4576C647993b0c1D7faf17c73";
+    case optimismSepolia.id:
+      return "0x4200000000000000000000000000000000000006";
+    case base.id:
+      return "0x4200000000000000000000000000000000000006";
+    case arbitrum.id:
+      return "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1";
+    case optimism.id:
+      return "0x4200000000000000000000000000000000000006";
+    default:
+      throw new Error("Unsupported chain");
+  }
+}
+
+async function prefundWeth(chain: Chain, address: Address, amount?: bigint) {
+  const fundingAccount = privateKeyToAccount(fundingPrivateKey);
+  const publicClient = createPublicClient({
+    chain,
+    transport: getTransport(chain),
+  });
+  const fundingClient = createWalletClient({
+    account: fundingAccount,
+    chain,
+    transport: getTransport(chain),
+  });
+  const wethAddress = getWethAddress(chain);
+  const wethBalance = await publicClient.readContract({
+    address: wethAddress,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address],
+  });
+  const fundAmount = amount
+    ? amount
+    : chain.testnet
+      ? parseEther("0.002")
+      : parseEther("0.00005");
+  // Always fund
+  const funderWethBalance = await publicClient.readContract({
+    address: wethAddress,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [fundingAccount.address],
+  });
+  // Wrap WETH if needed
+  if (funderWethBalance < fundAmount) {
+    const wrapTxHash = await fundingClient.sendTransaction({
+      to: wethAddress,
+      data: encodeFunctionData({
+        abi: [
+          {
+            inputs: [],
+            name: "deposit",
+            outputs: [],
+            stateMutability: "payable",
+            type: "function",
+          },
+        ],
+        functionName: "deposit",
+        args: [],
+      }),
+      value: fundAmount - funderWethBalance,
+    });
+    await publicClient.waitForTransactionReceipt({ hash: wrapTxHash });
+  }
+  const txHash = await fundingClient.sendTransaction({
+    to: wethAddress,
+    data: encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [address, fundAmount],
+    }),
+  });
+  console.log(`Prefunded ${formatEther(fundAmount)} WETH to ${address}`);
+  await publicClient.waitForTransactionReceipt({ hash: txHash });
+}
+
+async function prefundUsdc(chain: Chain, address: Address, amount?: bigint) {
+  const fundingAccount = privateKeyToAccount(fundingPrivateKey);
+  const publicClient = createPublicClient({
+    chain,
+    transport: getTransport(chain),
+  });
+  const fundingClient = createWalletClient({
+    account: fundingAccount,
+    chain,
+    transport: getTransport(chain),
+  });
+  const usdcAddress = getUsdcAddress(chain);
+  const fundAmount = amount
+    ? amount
+    : chain.testnet
+      ? parseUnits("0.1", 6)
+      : parseUnits("0.05", 6);
+  // Always fund
+  const txHash = await fundingClient.sendTransaction({
+    to: usdcAddress,
+    data: encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [address, fundAmount],
+    }),
+  });
+  console.log(`Prefunded ${formatUnits(fundAmount, 6)} USDC to ${address}`);
+  await publicClient.waitForTransactionReceipt({ hash: txHash });
+}
+
+const fundingAccount = privateKeyToAccount(fundingPrivateKey);
+const fundingAddress = fundingAccount.address;
+
+export {
+  getAccount,
+  isTestnet,
+  prefundUsdc,
+  prefundWeth,
+  rhinestoneAccount,
+  signerAccount,
+  fundingAddress,
+};
