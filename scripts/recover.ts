@@ -1,7 +1,7 @@
 import { RhinestoneSDK, type RhinestoneAccountConfig } from "@rhinestone/sdk";
 import { isOrchestratorError } from "@rhinestone/sdk/errors";
 import { base } from "viem/chains";
-import { rhinestoneAccount, signerAccount, fundingAddress } from "./common";
+import { signerAccount, fundingAddress } from "./common";
 import { encodeFunctionData, erc20Abi } from "viem";
 import type { OrchestratorError } from "@rhinestone/sdk/dist/src/orchestrator";
 
@@ -16,7 +16,10 @@ const config: RhinestoneAccountConfig = {
   },
   owners: {
     type: "ecdsa",
-    accounts: [signerAccount, rhinestoneAccount],
+    accounts: [signerAccount],
+  },
+  experimental_sessions: {
+    enabled: true,
   },
 };
 

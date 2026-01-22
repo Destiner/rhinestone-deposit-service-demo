@@ -1,4 +1,9 @@
-import { type RhinestoneAccountConfig, RhinestoneSDK } from "@rhinestone/sdk";
+import {
+  type RhinestoneAccount,
+  type RhinestoneAccountConfig,
+  RhinestoneSDK,
+  type Session,
+} from "@rhinestone/sdk";
 import { toViewOnlyAccount } from "@rhinestone/sdk/utils";
 import {
   type Chain,
@@ -32,20 +37,18 @@ const fundingPrivateKey = process.env.FUNDING_PRIVATE_KEY as Hex;
 if (!fundingPrivateKey) {
   throw new Error("FUNDING_PRIVATE_KEY is not set");
 }
-const rhinestoneSignedAddress = process.env
-  .RHINESTONE_SIGNER_ADDRESS as Address;
-if (!rhinestoneSignedAddress) {
+const rhinestoneSignerAddress = process.env.RHINESTONE_SIGNER_ADDRESS as Address;
+if (!rhinestoneSignerAddress) {
   throw new Error("RHINESTONE_SIGNER_ADDRESS is not set");
 }
 
 const isTestnet = process.env.USE_TESTNETS === "true";
 
-// User account
-// const pk = keccak256("0xabooba");
+// User account (root owner)
 const signerAccount = privateKeyToAccount(ownerPrivateKey);
 
-// Rhinestone Deposit Service account
-const rhinestoneAccount = toViewOnlyAccount(rhinestoneSignedAddress);
+// Rhinestone Deposit Service session signer (view-only, we only need the address)
+const sessionSignerAccount = toViewOnlyAccount(rhinestoneSignerAddress);
 
 async function getAccount(config: RhinestoneAccountConfig) {
   const rhinestone = new RhinestoneSDK();
@@ -199,12 +202,49 @@ async function prefundUsdc(chain: Chain, address: Address, amount?: bigint) {
 const fundingAccount = privateKeyToAccount(fundingPrivateKey);
 const fundingAddress = fundingAccount.address;
 
+// Session helpers
+function buildSession(chain: Chain): Session {
+  return {
+    owners: {
+      type: "ecdsa",
+      accounts: [sessionSignerAccount],
+    },
+    chain,
+  };
+}
+
+interface EnableSessionDetails {
+  hashesAndChainIds: {
+    chainId: bigint;
+    sessionDigest: Hex;
+  }[];
+  signature: Hex;
+}
+
+async function getSessionDetails(
+  rhinestoneAccount: RhinestoneAccount,
+  chains: Chain[]
+): Promise<EnableSessionDetails> {
+  const sessions = chains.map((chain) => buildSession(chain));
+  const sessionDetails =
+    await rhinestoneAccount.experimental_getSessionDetails(sessions);
+  const enableSignature =
+    await rhinestoneAccount.experimental_signEnableSession(sessionDetails);
+  return {
+    hashesAndChainIds: sessionDetails.hashesAndChainIds,
+    signature: enableSignature,
+  };
+}
+
 export {
+  buildSession,
   getAccount,
+  getSessionDetails,
   isTestnet,
   prefundUsdc,
   prefundWeth,
-  rhinestoneAccount,
+  sessionSignerAccount,
   signerAccount,
   fundingAddress,
 };
+export type { EnableSessionDetails };

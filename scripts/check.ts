@@ -1,5 +1,5 @@
 import type { RhinestoneAccountConfig } from "@rhinestone/sdk";
-import { getAccount, rhinestoneAccount, signerAccount } from "./common";
+import { getAccount, signerAccount } from "./common";
 
 const depositProcessorUrl = process.env.DEPOSIT_PROCESSOR_URL;
 
@@ -9,7 +9,10 @@ const config: RhinestoneAccountConfig = {
   },
   owners: {
     type: "ecdsa",
-    accounts: [signerAccount, rhinestoneAccount],
+    accounts: [signerAccount],
+  },
+  experimental_sessions: {
+    enabled: true,
   },
 };
 

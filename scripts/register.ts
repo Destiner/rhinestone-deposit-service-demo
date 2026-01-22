@@ -4,14 +4,28 @@ import {
   type TokenSymbol,
 } from "@rhinestone/sdk";
 import type { Address, Hex } from "viem";
-import { plasma, arbitrumSepolia } from "viem/chains";
-import { isTestnet, rhinestoneAccount, signerAccount } from "./common";
+import {
+  arbitrum,
+  arbitrumSepolia,
+  base,
+  baseSepolia,
+  optimism,
+  optimismSepolia,
+  plasma,
+} from "viem/chains";
+import {
+  type EnableSessionDetails,
+  getSessionDetails,
+  isTestnet,
+  signerAccount,
+} from "./common";
 
 interface AccountInput {
   address: Address;
   accountParams: {
     factory: Address;
     factoryData: Hex;
+    sessionDetails: EnableSessionDetails;
   };
   target: {
     chain: number;
@@ -28,29 +42,54 @@ if (!depositProcessorUrl) {
   throw new Error("DEPOSIT_PROCESSOR_URL is not set");
 }
 
+// Configure chains
 const targetChain = isTestnet ? arbitrumSepolia : plasma;
-// const targetToken = "USDC";
+const sourceChains = isTestnet
+  ? [baseSepolia, optimismSepolia, arbitrumSepolia]
+  : [base, optimism, arbitrum];
+
+// Target token on target chain
 const targetToken = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
 
+// Create account config with sessions enabled
 const config: RhinestoneAccountConfig = {
   account: {
     type: "nexus",
   },
   owners: {
     type: "ecdsa",
-    accounts: [signerAccount, rhinestoneAccount],
+    accounts: [signerAccount],
+  },
+  experimental_sessions: {
+    enabled: true,
   },
 };
 
 const rhinestone = new RhinestoneSDK();
 const account = await rhinestone.createAccount(config);
 const { factory, factoryData } = account.getInitData();
+const address = account.getAddress();
+
+console.log(`Account address: ${address}`);
+
+// Get all unique chains (source chains + target chain)
+const allChains = [...new Set([...sourceChains, targetChain])];
+console.log(
+  `Preparing session details for chains: ${allChains.map((c) => c.name).join(", ")}`
+);
+
+// Get session details for all chains
+const sessionDetails = await getSessionDetails(account, allChains);
+console.log(
+  `Session details prepared for ${sessionDetails.hashesAndChainIds.length} chain(s)`
+);
 
 const accountInput: AccountInput = {
-  address: account.getAddress(),
+  address,
   accountParams: {
     factory,
     factoryData,
+    sessionDetails,
   },
   target: {
     chain: targetChain.id,
@@ -64,9 +103,10 @@ const response = await fetch(`${depositProcessorUrl}/register`, {
     "Content-Type": "application/json",
     "x-api-key": rhinestoneApiKey,
   },
-  body: JSON.stringify({
-    account: accountInput,
-  }),
+  body: JSON.stringify(
+    { account: accountInput },
+    (_, v) => (typeof v === "bigint" ? v.toString() : v)
+  ),
 });
 console.log(`Register response: ${response.status}`);
 const data = await response.json();

@@ -1,11 +1,6 @@
 import type { RhinestoneAccountConfig } from "@rhinestone/sdk";
 import { base } from "viem/chains";
-import {
-  getAccount,
-  prefundUsdc,
-  rhinestoneAccount,
-  signerAccount,
-} from "./common";
+import { getAccount, prefundUsdc, signerAccount } from "./common";
 import { parseUnits } from "viem";
 
 const config: RhinestoneAccountConfig = {
@@ -14,7 +9,10 @@ const config: RhinestoneAccountConfig = {
   },
   owners: {
     type: "ecdsa",
-    accounts: [signerAccount, rhinestoneAccount],
+    accounts: [signerAccount],
+  },
+  experimental_sessions: {
+    enabled: true,
   },
 };
 

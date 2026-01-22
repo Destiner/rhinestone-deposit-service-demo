@@ -4,7 +4,7 @@
     "": {
       "name": "demo",
       "dependencies": {
-        "@rhinestone/sdk": "^1.1.2",
+        "@rhinestone/sdk": "^1.2.4",
         "hono": "^4.10.7",
       },
       "devDependencies": {
@@ -24,9 +24,9 @@
 
     "@noble/hashes": ["@noble/hashes@1.8.0", "", {}, "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="],
 
-    "@rhinestone/sdk": ["@rhinestone/sdk@1.1.2", "", { "dependencies": { "@rhinestone/shared-configs": "^1.4.45", "ox": "^0.9.11", "solady": "^0.1.26" }, "peerDependencies": { "viem": "^2.38.0" } }, "sha512-XTTOEoonHM/J+ldO7EKVTKkJWJ3JBmxFDIsDWZRU1QX0ZmPKavmt0LmzX14NtT4czgE5HAL20tPWPj2t/lt/Dw=="],
+    "@rhinestone/sdk": ["@rhinestone/sdk@1.2.4", "", { "dependencies": { "@rhinestone/shared-configs": "1.4.56", "ox": "^0.9.11", "solady": "^0.1.26" }, "peerDependencies": { "viem": "^2.38.0" } }, "sha512-6FbOX7fxwRoTYvKvXVPfKRsAuBiJgIvbYhDau1PW82RQEW1m7dzkmCHRyjRKC/9motsWUrbqTfeTtA22OHA3bg=="],
 
-    "@rhinestone/shared-configs": ["@rhinestone/shared-configs@1.4.47", "", { "peerDependencies": { "typescript": "^5", "viem": "^2.38.0" } }, "sha512-95f4oow9/WYQbDco03edE4kW8WmqpI6DcGzxN4vbKRJmFHbHR9gVmNLsDbxWnq7rm+wkxmEgsom68Yjo/fumhA=="],
+    "@rhinestone/shared-configs": ["@rhinestone/shared-configs@1.4.56", "", { "peerDependencies": { "typescript": "^5", "viem": "^2.38.0" } }, "sha512-U0cS+9FMAyweAla4Y89Cp9qtT8G48OdfAS1xPF3WtasYj0vNgY7W7J865fH6YaQewjWh/C6cQm1fEmLnlrPT4g=="],
 
     "@scure/base": ["@scure/base@1.2.6", "", {}, "sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg=="],
 
