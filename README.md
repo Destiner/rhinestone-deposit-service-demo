@@ -2,6 +2,8 @@
 
 > A collection of scripts to demonstrate the deposit service.
 
+Integration spec [here](https://gist.github.com/Destiner/e968dfe63aa6ca25a417ab286478f9d7).
+
 ## Scripts
 
 1. `setup.ts` — sets the developer to use the service, done once
@@ -13,12 +15,12 @@
 
 Run `webhooks.ts` to start the webhook listener server.
 
+See the webhook spec [here](https://gist.github.com/Destiner/659ff5c0266644e92f93672c3c8e17c4).
+
 ## Utilities
 
 1. `check.ts` — checks the status of an account
 2. `recover.ts` — pulls funds back to the source chain
 3. `add-chain.ts` — enables a new source chain by creating a new session key
-
-See the webhook spec [here](https://gist.github.com/Destiner/659ff5c0266644e92f93672c3c8e17c4).
 
 Make sure to update the `WEBHOOK_PUBLIC_URL` in `.env` to match your public URL. You might need to use a service like [ngrok](https://ngrok.com/) to expose your local server to the internet.
