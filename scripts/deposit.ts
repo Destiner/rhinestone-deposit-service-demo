@@ -23,7 +23,7 @@ const address = account.getAddress();
 // const sourceChain = isTestnet ? baseSepolia : base;
 const sourceChain = base;
 // await prefundUsdc(sourceChain, address);
-await prefundUsdc(sourceChain, address, parseUnits("0.05", 6));
-// await prefundWeth(sourceChain, address, parseEther("0.00003"));
+await prefundUsdc(sourceChain, address, parseUnits("0.001", 6));
+// await prefundWeth(sourceChain, address, parseEther("0.0000005"));
 
 // TODO check that deposit was successful
