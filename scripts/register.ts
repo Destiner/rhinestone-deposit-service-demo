@@ -6,12 +6,11 @@ import {
 import type { Address, Hex } from "viem";
 import {
   arbitrum,
-  arbitrumSepolia,
   base,
   baseSepolia,
   optimism,
-  optimismSepolia,
   plasma,
+  plasmaTestnet,
 } from "viem/chains";
 import {
   type EnableSessionDetails,
@@ -44,13 +43,13 @@ if (!depositProcessorUrl) {
 }
 
 // Configure chains
-const targetChain = isTestnet ? arbitrumSepolia : plasma;
-const sourceChains = isTestnet
-  ? [baseSepolia, optimismSepolia, arbitrumSepolia]
-  : [base, optimism, arbitrum];
+const targetChain = isTestnet ? plasmaTestnet : plasma;
+const sourceChains = isTestnet ? [baseSepolia] : [base, optimism, arbitrum];
 
-// Target token on target chain
-const targetToken = "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
+// Token on the target chain
+const targetToken = isTestnet
+  ? "0x502012b361aebce43b26ec812b74d9a51db4d412"
+  : "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
 
 // Create account config with sessions enabled
 const config: RhinestoneAccountConfig = {

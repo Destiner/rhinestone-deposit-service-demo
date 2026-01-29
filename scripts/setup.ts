@@ -1,4 +1,4 @@
-import { base, optimism } from "viem/chains";
+import { base, baseSepolia, optimism } from "viem/chains";
 
 const rhinestoneApiKey = process.env.RHINESTONE_API_KEY;
 if (!rhinestoneApiKey) {
@@ -23,6 +23,9 @@ const response = await fetch(`${depositProcessorUrl}/setup`, {
     params: {
       webhookUrl: `${webhookPublicUrl}/notify`,
       sponsorship: {
+        [baseSepolia.id]: {
+          gas: "all",
+        },
         [base.id]: {
           gas: "all",
         },
