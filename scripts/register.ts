@@ -30,6 +30,7 @@ interface AccountInput {
   target: {
     chain: number;
     token: Address | TokenSymbol;
+    recipient?: Address;
   };
 }
 
@@ -94,6 +95,8 @@ const accountInput: AccountInput = {
   target: {
     chain: targetChain.id,
     token: targetToken,
+    // Optional: custom recipient address
+    // recipient: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
   },
 };
 
