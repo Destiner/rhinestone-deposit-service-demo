@@ -12,6 +12,7 @@ const webhookPublicUrl = process.env.WEBHOOK_PUBLIC_URL;
 if (!webhookPublicUrl) {
   throw new Error("WEBHOOK_PUBLIC_URL is not set");
 }
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const response = await fetch(`${depositProcessorUrl}/setup`, {
   method: "POST",
@@ -22,6 +23,7 @@ const response = await fetch(`${depositProcessorUrl}/setup`, {
   body: JSON.stringify({
     params: {
       webhookUrl: `${webhookPublicUrl}/notify`,
+      webhookSecret,
       sponsorship: {
         [baseSepolia.id]: {
           gas: "all",

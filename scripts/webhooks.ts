@@ -1,9 +1,11 @@
+import { createHmac } from "node:crypto";
 import { Hono } from "hono";
 
 const port = process.env.WEBHOOK_PORT;
 if (!port) {
   throw new Error("WEBHOOK_PORT is not set");
 }
+const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const app = new Hono();
 
@@ -12,6 +14,20 @@ app.get("/ok", (c) => {
 });
 
 app.post("/notify", async (c) => {
+  const rawBody = await c.req.text();
+
+  if (webhookSecret) {
+    const signature = c.req.header("X-Webhook-Signature");
+    if (!signature) {
+      return c.json({ error: "Missing signature" }, 401);
+    }
+
+    const expectedSignature = `sha256=${createHmac("sha256", webhookSecret).update(rawBody).digest("hex")}`;
+    if (signature !== expectedSignature) {
+      return c.json({ error: "Invalid signature" }, 401);
+    }
+  }
+
   const timestamp = new Date().toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -23,7 +39,7 @@ app.post("/notify", async (c) => {
     hour12: true,
   });
 
-  const body = await c.req.json();
+  const body = JSON.parse(rawBody);
 
   console.log("\n========================================");
   console.log("Webhook received");
