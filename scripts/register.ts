@@ -75,13 +75,13 @@ console.log(`Account address: ${address}`);
 // Get all unique chains (source chains + target chain)
 const allChains = [...new Set([...sourceChains, targetChain])];
 console.log(
-  `Preparing session details for chains: ${allChains.map((c) => c.name).join(", ")}`
+  `Preparing session details for chains: ${allChains.map((c) => c.name).join(", ")}`,
 );
 
 // Get session details for all chains
 const sessionDetails = await getSessionDetails(account, allChains);
 console.log(
-  `Session details prepared for ${sessionDetails.hashesAndChainIds.length} chain(s)`
+  `Session details prepared for ${sessionDetails.hashesAndChainIds.length} chain(s)`,
 );
 
 const accountInput: AccountInput = {
@@ -105,9 +105,8 @@ const response = await fetch(`${depositProcessorUrl}/register`, {
     "Content-Type": "application/json",
     "x-api-key": rhinestoneApiKey,
   },
-  body: JSON.stringify(
-    { account: accountInput },
-    (_, v) => (typeof v === "bigint" ? v.toString() : v)
+  body: JSON.stringify({ account: accountInput }, (_, v) =>
+    typeof v === "bigint" ? v.toString() : v,
   ),
 });
 console.log(`Register response: ${response.status}`);
