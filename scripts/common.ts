@@ -24,8 +24,11 @@ import {
   arbitrumSepolia,
   base,
   baseSepolia,
+  bsc,
+  mainnet,
   optimism,
   optimismSepolia,
+  polygon,
   sepolia,
 } from "viem/chains";
 
@@ -37,7 +40,8 @@ const fundingPrivateKey = process.env.FUNDING_PRIVATE_KEY as Hex;
 if (!fundingPrivateKey) {
   throw new Error("FUNDING_PRIVATE_KEY is not set");
 }
-const rhinestoneSignerAddress = process.env.RHINESTONE_SIGNER_ADDRESS as Address;
+const rhinestoneSignerAddress = process.env
+  .RHINESTONE_SIGNER_ADDRESS as Address;
 if (!rhinestoneSignerAddress) {
   throw new Error("RHINESTONE_SIGNER_ADDRESS is not set");
 }
@@ -61,6 +65,9 @@ function getTransport(chain: Chain) {
   if (chain.id === sepolia.id) {
     return http("https://ethereum-sepolia-rpc.publicnode.com");
   }
+  if (chain.id === polygon.id) {
+    return http("https://1rpc.io/matic");
+  }
   return http();
 }
 
@@ -80,6 +87,27 @@ function getUsdcAddress(chain: Chain): Address {
       return "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
     case optimism.id:
       return "0x0b2c639c533813f4aa9d7837caf62653d097ff85";
+    case polygon.id:
+      return "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359";
+    case mainnet.id:
+      return "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+    case bsc.id:
+      return "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d";
+    default:
+      throw new Error("Unsupported chain");
+  }
+}
+
+function getUsdtAddress(chain: Chain): Address {
+  switch (chain.id) {
+    case mainnet.id:
+      return "0xdac17f958d2ee523a2206206994597c13d831ec7";
+    case polygon.id:
+      return "0xc2132d05d31c914a87c6611c10748aeb04b58e8f";
+    case arbitrum.id:
+      return "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9";
+    case bsc.id:
+      return "0x55d398326f99059fF775485246999027B3197955";
     default:
       throw new Error("Unsupported chain");
   }
@@ -199,6 +227,36 @@ async function prefundUsdc(chain: Chain, address: Address, amount?: bigint) {
   await publicClient.waitForTransactionReceipt({ hash: txHash });
 }
 
+async function prefundUsdt(chain: Chain, address: Address, amount?: bigint) {
+  const fundingAccount = privateKeyToAccount(fundingPrivateKey);
+  const publicClient = createPublicClient({
+    chain,
+    transport: getTransport(chain),
+  });
+  const fundingClient = createWalletClient({
+    account: fundingAccount,
+    chain,
+    transport: getTransport(chain),
+  });
+  const usdtAddress = getUsdtAddress(chain);
+  const fundAmount = amount
+    ? amount
+    : chain.testnet
+      ? parseUnits("0.1", 6)
+      : parseUnits("0.05", 6);
+  // Always fund
+  const txHash = await fundingClient.sendTransaction({
+    to: usdtAddress,
+    data: encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [address, fundAmount],
+    }),
+  });
+  console.log(`Prefunded ${formatUnits(fundAmount, 6)} USDT to ${address}`);
+  await publicClient.waitForTransactionReceipt({ hash: txHash });
+}
+
 const fundingAccount = privateKeyToAccount(fundingPrivateKey);
 const fundingAddress = fundingAccount.address;
 
@@ -223,7 +281,7 @@ interface EnableSessionDetails {
 
 async function getSessionDetails(
   rhinestoneAccount: RhinestoneAccount,
-  chains: Chain[]
+  chains: Chain[],
 ): Promise<EnableSessionDetails> {
   const sessions = chains.map((chain) => buildSession(chain));
   const sessionDetails =
@@ -242,6 +300,7 @@ export {
   getSessionDetails,
   isTestnet,
   prefundUsdc,
+  prefundUsdt,
   prefundWeth,
   sessionSignerAccount,
   signerAccount,

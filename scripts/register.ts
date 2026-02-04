@@ -8,9 +8,12 @@ import {
   arbitrum,
   base,
   baseSepolia,
+  bsc,
+  mainnet,
   optimism,
   plasma,
   plasmaTestnet,
+  polygon,
 } from "viem/chains";
 import {
   type EnableSessionDetails,
@@ -44,7 +47,9 @@ if (!depositProcessorUrl) {
 
 // Configure chains
 const targetChain = isTestnet ? plasmaTestnet : plasma;
-const sourceChains = isTestnet ? [baseSepolia] : [base, optimism, arbitrum];
+const sourceChains = isTestnet
+  ? [baseSepolia]
+  : [mainnet, base, optimism, arbitrum, polygon, bsc];
 
 // Token on the target chain
 const targetToken = isTestnet
