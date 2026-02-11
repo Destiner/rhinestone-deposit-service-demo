@@ -6,11 +6,13 @@ import {
 import type { Address, Hex } from "viem";
 import {
   arbitrum,
+  arbitrumSepolia,
   base,
   baseSepolia,
   bsc,
   mainnet,
   optimism,
+  optimismSepolia,
   plasma,
   plasmaTestnet,
   polygon,
@@ -48,7 +50,7 @@ if (!depositProcessorUrl) {
 // Configure chains
 const targetChain = isTestnet ? plasmaTestnet : plasma;
 const sourceChains = isTestnet
-  ? [baseSepolia]
+  ? [baseSepolia, optimismSepolia, arbitrumSepolia]
   : [mainnet, base, optimism, arbitrum, polygon, bsc];
 
 // Token on the target chain
