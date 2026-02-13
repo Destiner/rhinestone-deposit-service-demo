@@ -6,6 +6,7 @@ import {
 } from "@rhinestone/sdk";
 import { toViewOnlyAccount } from "@rhinestone/sdk/utils";
 import {
+  http,
   type Chain,
   type Hex,
   createPublicClient,
@@ -14,7 +15,6 @@ import {
   erc20Abi,
   formatEther,
   formatUnits,
-  http,
   parseEther,
   parseUnits,
 } from "viem";
@@ -45,6 +45,10 @@ const rhinestoneSignerAddress = process.env
 if (!rhinestoneSignerAddress) {
   throw new Error("RHINESTONE_SIGNER_ADDRESS is not set");
 }
+const rhinestoneApiKey = process.env.RHINESTONE_API_KEY as string;
+if (!rhinestoneApiKey) {
+  throw new Error("RHINESTONE_API_KEY is not set");
+}
 
 const isTestnet = process.env.USE_TESTNETS === "true";
 
@@ -55,7 +59,9 @@ const signerAccount = privateKeyToAccount(ownerPrivateKey);
 const sessionSignerAccount = toViewOnlyAccount(rhinestoneSignerAddress);
 
 async function getAccount(config: RhinestoneAccountConfig) {
-  const rhinestone = new RhinestoneSDK();
+  const rhinestone = new RhinestoneSDK({
+    apiKey: rhinestoneApiKey,
+  });
   const account = await rhinestone.createAccount(config);
   return account;
 }
