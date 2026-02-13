@@ -10,7 +10,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@rhinestone/sdk": "^1.2.4",
+    "@rhinestone/sdk": "^1.2.12",
     "hono": "^4.10.7"
   }
 }
