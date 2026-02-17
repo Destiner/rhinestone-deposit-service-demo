@@ -1,6 +1,6 @@
 import type { RhinestoneAccountConfig } from "@rhinestone/sdk";
 import { base, baseSepolia } from "viem/chains";
-import { isTestnet, getAccount, signerAccount } from "./common";
+import { isTestnet, getAccount, signerAccount, prefundUsdc } from "./common";
 import { parseUnits } from "viem";
 
 const config: RhinestoneAccountConfig = {
