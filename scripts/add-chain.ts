@@ -1,16 +1,10 @@
 import { type RhinestoneAccountConfig, RhinestoneSDK } from "@rhinestone/sdk";
 import type { Chain } from "viem";
 import { polygon, polygonAmoy } from "viem/chains";
-import { getSessionDetails, isTestnet, signerAccount } from "./common";
+import { getEnv, getSessionDetails, isTestnet, signerAccount } from "./common";
 
-const rhinestoneApiKey = process.env.RHINESTONE_API_KEY;
-if (!rhinestoneApiKey) {
-  throw new Error("RHINESTONE_API_KEY is not set");
-}
-const depositProcessorUrl = process.env.DEPOSIT_PROCESSOR_URL;
-if (!depositProcessorUrl) {
-  throw new Error("DEPOSIT_PROCESSOR_URL is not set");
-}
+const rhinestoneApiKey = getEnv("RHINESTONE_API_KEY");
+const depositProcessorUrl = getEnv("DEPOSIT_PROCESSOR_URL");
 
 // New chains to add session support for
 const newChains: Chain[] = isTestnet

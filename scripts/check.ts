@@ -1,7 +1,7 @@
 import type { RhinestoneAccountConfig } from "@rhinestone/sdk";
-import { getAccount, signerAccount } from "./common";
+import { getAccount, getEnv, signerAccount } from "./common";
 
-const depositProcessorUrl = process.env.DEPOSIT_PROCESSOR_URL;
+const depositProcessorUrl = getEnv("DEPOSIT_PROCESSOR_URL");
 
 const config: RhinestoneAccountConfig = {
   account: {

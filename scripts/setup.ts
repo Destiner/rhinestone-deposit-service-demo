@@ -1,17 +1,9 @@
 import { base, baseSepolia, optimism } from "viem/chains";
+import { getEnv } from "./common";
 
-const rhinestoneApiKey = process.env.RHINESTONE_API_KEY;
-if (!rhinestoneApiKey) {
-  throw new Error("RHINESTONE_API_KEY is not set");
-}
-const depositProcessorUrl = process.env.DEPOSIT_PROCESSOR_URL;
-if (!depositProcessorUrl) {
-  throw new Error("DEPOSIT_PROCESSOR_URL is not set");
-}
-const webhookPublicUrl = process.env.WEBHOOK_PUBLIC_URL;
-if (!webhookPublicUrl) {
-  throw new Error("WEBHOOK_PUBLIC_URL is not set");
-}
+const rhinestoneApiKey = getEnv("RHINESTONE_API_KEY");
+const depositProcessorUrl = getEnv("DEPOSIT_PROCESSOR_URL");
+const webhookPublicUrl = getEnv("WEBHOOK_PUBLIC_URL");
 const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const response = await fetch(`${depositProcessorUrl}/setup`, {

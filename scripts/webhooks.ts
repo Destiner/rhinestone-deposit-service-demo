@@ -1,10 +1,8 @@
 import { createHmac } from "node:crypto";
 import { Hono } from "hono";
+import { getEnv } from "./common";
 
-const port = process.env.WEBHOOK_PORT;
-if (!port) {
-  throw new Error("WEBHOOK_PORT is not set");
-}
+const port = getEnv("WEBHOOK_PORT");
 const webhookSecret = process.env.WEBHOOK_SECRET;
 
 const app = new Hono();

@@ -21,6 +21,7 @@ import {
 import {
   type EnableSessionDetails,
   getSessionDetails,
+  getEnv,
   isTestnet,
   signerAccount,
 } from "./common";
@@ -39,14 +40,8 @@ interface AccountInput {
   };
 }
 
-const rhinestoneApiKey = process.env.RHINESTONE_API_KEY;
-if (!rhinestoneApiKey) {
-  throw new Error("RHINESTONE_API_KEY is not set");
-}
-const depositProcessorUrl = process.env.DEPOSIT_PROCESSOR_URL;
-if (!depositProcessorUrl) {
-  throw new Error("DEPOSIT_PROCESSOR_URL is not set");
-}
+const rhinestoneApiKey = getEnv("RHINESTONE_API_KEY");
+const depositProcessorUrl = getEnv("DEPOSIT_PROCESSOR_URL");
 
 // Configure chains
 const targetChain = isTestnet ? plasmaTestnet : plasma;

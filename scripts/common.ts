@@ -21,24 +21,40 @@ import {
 } from "viem";
 import { type Address, privateKeyToAccount } from "viem/accounts";
 import { polygon, sepolia } from "viem/chains";
+type EnvVarName =
+  | "OWNER_PRIVATE_KEY"
+  | "FUNDING_PRIVATE_KEY"
+  | "RHINESTONE_SIGNER_ADDRESS"
+  | "RHINESTONE_API_KEY"
+  | "DEPOSIT_PROCESSOR_URL"
+  | "WEBHOOK_PUBLIC_URL"
+  | "WEBHOOK_PORT";
 
-const ownerPrivateKey = process.env.OWNER_PRIVATE_KEY as Hex;
-if (!ownerPrivateKey) {
-  throw new Error("OWNER_PRIVATE_KEY is not set");
+function getEnv(name: EnvVarName): string {
+  const targetEnv = process.env.TARGET_ENVIRONMENT?.toUpperCase();
+
+  if (targetEnv) {
+    const suffixed = process.env[`${name}_${targetEnv}`];
+    if (suffixed) return suffixed;
+
+    const shared = process.env[`${name}_PUBLIC`];
+    if (shared) return shared;
+  }
+
+  const value = process.env[name];
+  if (value) return value;
+
+  throw new Error(
+    targetEnv
+      ? `Neither ${name}_${targetEnv}, ${name}_PUBLIC, nor ${name} is set`
+      : `${name} is not set`,
+  );
 }
-const fundingPrivateKey = process.env.FUNDING_PRIVATE_KEY as Hex;
-if (!fundingPrivateKey) {
-  throw new Error("FUNDING_PRIVATE_KEY is not set");
-}
-const rhinestoneSignerAddress = process.env
-  .RHINESTONE_SIGNER_ADDRESS as Address;
-if (!rhinestoneSignerAddress) {
-  throw new Error("RHINESTONE_SIGNER_ADDRESS is not set");
-}
-const rhinestoneApiKey = process.env.RHINESTONE_API_KEY as string;
-if (!rhinestoneApiKey) {
-  throw new Error("RHINESTONE_API_KEY is not set");
-}
+
+const ownerPrivateKey = getEnv("OWNER_PRIVATE_KEY") as Hex;
+const fundingPrivateKey = getEnv("FUNDING_PRIVATE_KEY") as Hex;
+const rhinestoneSignerAddress = getEnv("RHINESTONE_SIGNER_ADDRESS") as Address;
+const rhinestoneApiKey = getEnv("RHINESTONE_API_KEY");
 
 const isTestnet = process.env.USE_TESTNETS === "true";
 
@@ -270,5 +286,6 @@ export {
   sessionSignerAccount,
   signerAccount,
   fundingAddress,
+  getEnv,
 };
-export type { EnableSessionDetails };
+export type { EnableSessionDetails, EnvVarName };
