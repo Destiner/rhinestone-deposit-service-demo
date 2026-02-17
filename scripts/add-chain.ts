@@ -31,7 +31,9 @@ const config: RhinestoneAccountConfig = {
   },
 };
 
-const rhinestone = new RhinestoneSDK();
+const rhinestone = new RhinestoneSDK({
+  apiKey: rhinestoneApiKey,
+});
 const account = await rhinestone.createAccount(config);
 const address = account.getAddress();
 
