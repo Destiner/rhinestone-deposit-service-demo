@@ -1,6 +1,7 @@
 import {
   type RhinestoneAccountConfig,
   RhinestoneSDK,
+  getTokenAddress,
   type TokenSymbol,
 } from "@rhinestone/sdk";
 import type { Address, Hex } from "viem";
@@ -54,9 +55,7 @@ const sourceChains = isTestnet
   : [mainnet, base, optimism, arbitrum, polygon, bsc];
 
 // Token on the target chain
-const targetToken = isTestnet
-  ? "0x502012b361aebce43b26ec812b74d9a51db4d412"
-  : "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
+const targetToken = getTokenAddress("USDT0" as TokenSymbol, targetChain.id);
 
 // Create account config with sessions enabled
 const config: RhinestoneAccountConfig = {
