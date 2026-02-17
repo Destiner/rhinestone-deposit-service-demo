@@ -334,6 +334,7 @@ export {
   buildSession,
   getAccount,
   getSessionDetails,
+  getUsdcAddress,
   isTestnet,
   prefund,
   prefundUsdc,
