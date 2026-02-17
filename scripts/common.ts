@@ -17,6 +17,7 @@ import {
   formatUnits,
   parseEther,
   parseUnits,
+  zeroAddress,
 } from "viem";
 import { type Address, privateKeyToAccount } from "viem/accounts";
 import {
@@ -28,6 +29,8 @@ import {
   mainnet,
   optimism,
   optimismSepolia,
+  plasma,
+  plasmaTestnet,
   polygon,
   sepolia,
 } from "viem/chains";
@@ -106,6 +109,10 @@ function getUsdcAddress(chain: Chain): Address {
 
 function getUsdtAddress(chain: Chain): Address {
   switch (chain.id) {
+    case plasmaTestnet.id:
+      return "0x502012b361aebce43b26ec812b74d9a51db4d412";
+    case plasma.id:
+      return "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb";
     case mainnet.id:
       return "0xdac17f958d2ee523a2206206994597c13d831ec7";
     case polygon.id:
@@ -140,6 +147,21 @@ function getWethAddress(chain: Chain) {
   }
 }
 
+function getTokenAddress(chain: Chain, token: string): Address {
+  switch (token) {
+    case "ETH":
+      return zeroAddress;
+    case "USDC":
+      return getUsdcAddress(chain);
+    case "USDT":
+      return getUsdtAddress(chain);
+    case "WETH":
+      return getWethAddress(chain);
+    default:
+      throw new Error(`Unknown token: ${token}`);
+  }
+}
+
 async function prefund(chain: Chain, address: Address, amount?: bigint) {
   const fundingAccount = privateKeyToAccount(fundingPrivateKey);
   const publicClient = createPublicClient({
@@ -168,6 +190,7 @@ async function prefund(chain: Chain, address: Address, amount?: bigint) {
     });
     await publicClient.waitForTransactionReceipt({ hash: txHash });
   }
+  console.log(`Prefunded ${formatEther(fundAmount)} ETH to ${address}`);
 }
 
 async function prefundWeth(chain: Chain, address: Address, amount?: bigint) {
@@ -334,6 +357,7 @@ export {
   buildSession,
   getAccount,
   getSessionDetails,
+  getTokenAddress,
   getUsdcAddress,
   isTestnet,
   prefund,
