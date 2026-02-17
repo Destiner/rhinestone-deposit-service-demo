@@ -140,6 +140,36 @@ function getWethAddress(chain: Chain) {
   }
 }
 
+async function prefund(chain: Chain, address: Address, amount?: bigint) {
+  const fundingAccount = privateKeyToAccount(fundingPrivateKey);
+  const publicClient = createPublicClient({
+    chain,
+    transport: getTransport(chain),
+  });
+  const fundingClient = createWalletClient({
+    account: fundingAccount,
+    chain,
+    transport: getTransport(chain),
+  });
+  const ethBalance = await publicClient.getBalance({
+    address,
+  });
+  const fundAmount = amount
+    ? amount
+    : chain.testnet
+      ? chain.id === sepolia.id
+        ? parseEther("0.005")
+        : parseEther("0.001")
+      : parseEther("0.00015");
+  if (ethBalance < fundAmount / 2n) {
+    const txHash = await fundingClient.sendTransaction({
+      to: address,
+      value: fundAmount,
+    });
+    await publicClient.waitForTransactionReceipt({ hash: txHash });
+  }
+}
+
 async function prefundWeth(chain: Chain, address: Address, amount?: bigint) {
   const fundingAccount = privateKeyToAccount(fundingPrivateKey);
   const publicClient = createPublicClient({
@@ -162,7 +192,7 @@ async function prefundWeth(chain: Chain, address: Address, amount?: bigint) {
     ? amount
     : chain.testnet
       ? parseEther("0.002")
-      : parseEther("0.00005");
+      : parseEther("0.00015");
   // Always fund
   const funderWethBalance = await publicClient.readContract({
     address: wethAddress,
@@ -305,6 +335,7 @@ export {
   getAccount,
   getSessionDetails,
   isTestnet,
+  prefund,
   prefundUsdc,
   prefundUsdt,
   prefundWeth,
