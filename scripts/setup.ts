@@ -17,13 +17,13 @@ const response = await fetch(`${depositProcessorUrl}/setup`, {
       webhookUrl: `${webhookPublicUrl}/notify`,
       webhookSecret,
       sponsorship: {
-        [baseSepolia.id]: {
+        [`eip155:${baseSepolia.id}`]: {
           gas: "all",
         },
-        [base.id]: {
+        [`eip155:${base.id}`]: {
           gas: "all",
         },
-        [optimism.id]: {
+        [`eip155:${optimism.id}`]: {
           gas: "all",
         },
       },

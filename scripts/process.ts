@@ -35,7 +35,7 @@ const sourceChain = isTestnet ? baseSepolia : base;
 const usdcAmount = isTestnet ? parseUnits("0.05", 6) : parseUnits("0.001", 6);
 
 const deposit = {
-  chainId: sourceChain.id,
+  chainId: `eip155:${sourceChain.id}`,
   token: getTokenAddress("USDC", sourceChain.id),
   amount: usdcAmount.toString(),
   txHash,
