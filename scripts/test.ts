@@ -314,15 +314,15 @@ function getRandomFundAmount(chain: Chain, token: string): bigint {
   const variance = 1 + Math.random() / 5; // 1x to 1.2x
   switch (token) {
     case "ETH": {
-      const base = chain.testnet ? 0.0001 : 0.00015;
+      const base = chain.testnet ? 0.0001 : 0.00005;
       return parseEther((base * variance).toFixed(8));
     }
     case "USDC": {
-      const base = chain.testnet ? 0.2 : 0.2;
+      const base = chain.testnet ? 0.2 : 0.1;
       return parseUnits((base * variance).toFixed(6), 6);
     }
     case "WETH": {
-      const base = chain.testnet ? 0.0002 : 0.00015;
+      const base = chain.testnet ? 0.0002 : 0.00005;
       return parseEther((base * variance).toFixed(8));
     }
     default:
