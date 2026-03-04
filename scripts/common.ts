@@ -126,12 +126,6 @@ async function prefundWeth(chain: Chain, address: Address, amount?: bigint) {
     transport: getTransport(chain),
   });
   const wethAddress = getTokenAddress("WETH", chain.id);
-  const wethBalance = await publicClient.readContract({
-    address: wethAddress,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: [address],
-  });
   const fundAmount = amount
     ? amount
     : chain.testnet
