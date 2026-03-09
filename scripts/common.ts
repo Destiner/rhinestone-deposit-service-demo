@@ -20,7 +20,7 @@ import {
   parseUnits,
 } from "viem";
 import { type Address, privateKeyToAccount } from "viem/accounts";
-import { polygon, sepolia } from "viem/chains";
+import { polygon, sepolia, mainnet } from "viem/chains";
 type EnvVarName =
   | "OWNER_PRIVATE_KEY"
   | "FUNDING_PRIVATE_KEY"
@@ -79,6 +79,9 @@ function getTransport(chain: Chain) {
   }
   if (chain.id === polygon.id) {
     return http("https://1rpc.io/matic");
+  }
+  if (chain.id === mainnet.id) {
+    return http("https://ethereum-rpc.publicnode.com");
   }
   return http();
 }
