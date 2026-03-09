@@ -47,7 +47,7 @@ const depositProcessorUrl = getEnv("DEPOSIT_PROCESSOR_URL");
 const targetChain = isTestnet ? plasmaTestnet : plasma;
 const sourceChains = isTestnet
   ? [baseSepolia, optimismSepolia, arbitrumSepolia]
-  : [mainnet, base, optimism, arbitrum, polygon, bsc];
+  : [mainnet, base, optimism, arbitrum];
 
 // Token on the target chain
 const targetToken = getTokenAddress("USDT0" as TokenSymbol, targetChain.id);
