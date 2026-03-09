@@ -237,6 +237,27 @@ function uniqueChains(chains: Chain[]): Chain[] {
   );
 }
 
+interface SourceGroup {
+  sourceChain: Chain;
+  sourceToken: string;
+}
+
+function groupBySource(cases: TestCase[]): SourceGroup[] {
+  const groups: SourceGroup[] = [];
+  for (const tc of cases) {
+    if (
+      !groups.find(
+        (g) =>
+          g.sourceChain.id === tc.sourceChain.id &&
+          g.sourceToken === tc.sourceToken,
+      )
+    ) {
+      groups.push({ sourceChain: tc.sourceChain, sourceToken: tc.sourceToken });
+    }
+  }
+  return groups;
+}
+
 function groupByTarget(cases: TestCase[]): TargetGroup[] {
   const groups: TargetGroup[] = [];
   for (const tc of cases) {
@@ -760,7 +781,13 @@ printReport(results);
 
 // --- Sweep ---
 
-const allTargetGroups = groupByTarget([...testnetCases, ...mainnetCases]);
+const allCases = [...testnetCases, ...mainnetCases];
+const allTargetGroups = groupByTarget(allCases);
 for (const group of allTargetGroups) {
   await sweepFunds(account, group.targetChain, group.targetToken, RECIPIENT);
+}
+
+const allSourceGroups = groupBySource(allCases);
+for (const group of allSourceGroups) {
+  await sweepFunds(account, group.sourceChain, group.sourceToken, RECIPIENT);
 }
