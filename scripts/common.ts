@@ -3,6 +3,7 @@ import {
   type RhinestoneAccountConfig,
   RhinestoneSDK,
   type Session,
+  type TokenSymbol,
   getTokenAddress,
 } from "@rhinestone/sdk";
 import { toViewOnlyAccount } from "@rhinestone/sdk/utils";
@@ -215,7 +216,7 @@ async function prefundUsdt(chain: Chain, address: Address, amount?: bigint) {
     chain,
     transport: getTransport(chain),
   });
-  const usdtAddress = getTokenAddress("USDT", chain.id);
+  const usdtAddress = getTokenAddress("USDT0" as TokenSymbol, chain.id);
   const fundAmount = amount
     ? amount
     : chain.testnet
