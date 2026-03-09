@@ -98,9 +98,6 @@ async function prefund(chain: Chain, address: Address, amount?: bigint) {
     chain,
     transport: getTransport(chain),
   });
-  const ethBalance = await publicClient.getBalance({
-    address,
-  });
   const fundAmount = amount
     ? amount
     : chain.testnet
@@ -108,13 +105,11 @@ async function prefund(chain: Chain, address: Address, amount?: bigint) {
         ? parseEther("0.005")
         : parseEther("0.001")
       : parseEther("0.00015");
-  if (ethBalance < fundAmount / 2n) {
-    const txHash = await fundingClient.sendTransaction({
-      to: address,
-      value: fundAmount,
-    });
-    await publicClient.waitForTransactionReceipt({ hash: txHash });
-  }
+  const txHash = await fundingClient.sendTransaction({
+    to: address,
+    value: fundAmount,
+  });
+  await publicClient.waitForTransactionReceipt({ hash: txHash });
   console.log(`Prefunded ${formatEther(fundAmount)} ETH to ${address}`);
 }
 
